@@ -1,7 +1,7 @@
-Put your real resume PDF here as:
-Ashish-Chaudhari-Resume.pdf
+Portfolio assets
 
-Optional later:
-- profile photo
-- project screenshots
-- favicon
+Resume:
+Place your actual PDF at:
+public/Ashish-Chaudhari-Resume.pdf
+
+The navigation Resume button opens that PDF in a new browser tab.

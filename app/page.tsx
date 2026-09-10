@@ -16,7 +16,7 @@ import {
   LineChart,
   Code2,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const projects = [
   {
@@ -90,20 +90,27 @@ function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
 
 export default function Home() {
   const [open, setOpen] = useState(false);
+  const [cursor, setCursor] = useState({ x: -100, y: -100 });
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
 
   const close = () => setOpen(false);
 
+  useEffect(() => {
+    const move = (event: MouseEvent) => setCursor({ x: event.clientX, y: event.clientY });
+    window.addEventListener("mousemove", move);
+    return () => window.removeEventListener("mousemove", move);
+  }, []);
+
   return (
     <>
+      <motion.div className="cursor-glow" animate={{ x: cursor.x, y: cursor.y }} transition={{ type: "spring", stiffness: 450, damping: 35 }} />
       <motion.div className="progress" style={{ scaleX }} />
 
       <header className="nav-wrap">
         <nav className="nav">
           <a className="brand" href="#top" onClick={close}>
-            <span className="brand-dot" />
-            Ashish<span>.</span>
+            <span className="brand-name">Ashish<span>.</span></span>
           </a>
 
           <div className={`nav-links ${open ? "open" : ""}`}>
@@ -111,7 +118,7 @@ export default function Home() {
             <a href="#skills" onClick={close}>Skills</a>
             <a href="#work" onClick={close}>Work</a>
             <a href="#contact" onClick={close}>Contact</a>
-            <a className="nav-resume" href="/Ashish-Chaudhari-Resume.pdf" download onClick={close}>
+            <a className="nav-resume" href="/Ashish-Chaudhari-Resume.pdf" target="_blank" rel="noreferrer" onClick={close}>
               <Download size={15} /> Resume
             </a>
           </div>
@@ -125,8 +132,10 @@ export default function Home() {
       <main id="top">
         <section className="hero">
           <div className="hero-grid" />
-          <div className="orb orb-one" />
-          <div className="orb orb-two" />
+          <motion.div className="orb orb-one" animate={{ x: [0, 35, -15, 0], y: [0, -25, 20, 0], scale: [1, 1.08, .96, 1] }} transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }} />
+          <motion.div className="orb orb-two" animate={{ x: [0, -20, 25, 0], y: [0, 20, -10, 0] }} transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }} />
+          <div className="hero-orbit orbit-one" />
+          <div className="hero-orbit orbit-two" />
 
           <div className="hero-inner">
             <motion.div
@@ -135,7 +144,7 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <span className="pulse" /> Open to opportunities
+              <motion.span className="pulse" animate={{ scale: [1, 1.25, 1], opacity: [1, .65, 1] }} transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }} /> Open to opportunities
             </motion.div>
 
             <motion.p
@@ -173,12 +182,12 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.45, duration: 0.6 }}
             >
-              <a className="button primary" href="#work">
+              <motion.a className="button primary" href="#work" whileHover={{ y: -4, scale: 1.02 }} whileTap={{ scale: .98 }}>
                 Explore my work <ArrowUpRight size={17} />
-              </a>
-              <a className="button secondary" href="#contact">
+              </motion.a>
+              <motion.a className="button secondary" href="#contact" whileHover={{ y: -4, scale: 1.02 }} whileTap={{ scale: .98 }}>
                 Let&apos;s talk <ArrowDownRight size={17} />
-              </a>
+              </motion.a>
             </motion.div>
 
             <div className="hero-meta">
@@ -226,7 +235,7 @@ export default function Home() {
               <h2>Tools I use to<br /><span>find the signal.</span></h2>
               <p>From querying raw tables to building dashboards that make the answer obvious.</p>
             </div>
-            <div className="skills-grid">
+            <motion.div className="skills-grid" initial="hidden" whileInView="show" viewport={{ once: true, margin: "-60px" }} variants={{ hidden: {}, show: { transition: { staggerChildren: 0.09 } } }}>
               {skills.map((skill, i) => {
                 const Icon = skill.icon;
                 return (
@@ -234,7 +243,9 @@ export default function Home() {
                     className="skill-card"
                     key={skill.name}
                     whileHover={{ y: -7 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                    initial={{ opacity: 0, y: 25 }}
+                    variants={{ hidden: { opacity: 0, y: 25 }, show: { opacity: 1, y: 0 } }}
+                    transition={{ type: "spring", stiffness: 280, damping: 22 }}
                   >
                     <div className="skill-icon"><Icon size={21} /></div>
                     <div>
@@ -245,7 +256,7 @@ export default function Home() {
                   </motion.div>
                 );
               })}
-            </div>
+            </motion.div>
           </Reveal>
         </section>
 
@@ -257,7 +268,7 @@ export default function Home() {
               <p>Real practice across SQL, Python, BI and spreadsheet-based analysis.</p>
             </div>
 
-            <div className="projects">
+            <motion.div className="projects" initial="hidden" whileInView="show" viewport={{ once: true, margin: "-60px" }} variants={{ hidden: {}, show: { transition: { staggerChildren: 0.1 } } }}>
               {projects.map((project, i) => (
                 <motion.a
                   className="project"
@@ -265,8 +276,10 @@ export default function Home() {
                   target={project.href.startsWith("http") ? "_blank" : undefined}
                   rel={project.href.startsWith("http") ? "noreferrer" : undefined}
                   key={project.title}
-                  whileHover={{ y: -5 }}
-                  transition={{ type: "spring", stiffness: 280, damping: 22 }}
+                  whileHover={{ y: -9, scale: 1.012 }}
+                  initial={{ opacity: 0, y: 30 }}
+                  variants={{ hidden: { opacity: 0, y: 30 }, show: { opacity: 1, y: 0 } }}
+                  transition={{ type: "spring", stiffness: 260, damping: 22 }}
                 >
                   <div className="project-top">
                     <span>{project.number}</span>
@@ -282,7 +295,7 @@ export default function Home() {
                   </div>
                 </motion.a>
               ))}
-            </div>
+            </motion.div>
           </Reveal>
         </section>
 
@@ -291,20 +304,20 @@ export default function Home() {
             <div className="process-inner">
               <div className="section-kicker">04 — MY APPROACH</div>
               <h2>From question<br /><span>to insight.</span></h2>
-              <div className="process-grid">
+              <motion.div className="process-grid" initial="hidden" whileInView="show" viewport={{ once: true, margin: "-50px" }} variants={{ hidden: {}, show: { transition: { staggerChildren: 0.12 } } }}>
                 {[
                   ["01", "Understand", "Start with the business question, not the chart."],
                   ["02", "Clean", "Validate, transform and prepare the data."],
                   ["03", "Analyze", "Use SQL, Python and analytical thinking to find patterns."],
                   ["04", "Communicate", "Turn findings into simple, decision-ready visuals."],
                 ].map(([n, title, copy]) => (
-                  <div className="process-item" key={n}>
+                  <motion.div className="process-item" key={n} variants={{ hidden: { opacity: 0, y: 22 }, show: { opacity: 1, y: 0 } }} transition={{ duration: .55 }}>
                     <span>{n}</span>
                     <h3>{title}</h3>
                     <p>{copy}</p>
-                  </div>
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             </div>
           </Reveal>
         </section>
@@ -321,7 +334,7 @@ export default function Home() {
               </p>
 
               <div className="contact-actions">
-                <a className="button primary large" href="mailto:aa8903100@example.com">
+                <a className="button primary large" href="mailto:aa8903100@gmail.com">
                   <Mail size={18} /> Email me
                 </a>
                 <a className="button secondary large" href="https://www.linkedin.com/in/ashishchaudhari03/" target="_blank" rel="noreferrer">
@@ -342,6 +355,7 @@ export default function Home() {
 
       <footer>
         <span>© 2026 Ashish Chaudhari</span>
+        <span>Built with Next.js · Designed for clarity.</span>
       </footer>
     </>
   );
